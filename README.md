@@ -1,47 +1,51 @@
-# RELAY AI — Functional Hackathon MVP
+## Relay AI
+Knowledge handovers shouldn't mean lose-your-mind context switching.
 
-A browser-based project knowledge handover prototype. It supports document uploads (PDF, DOCX, TXT, MD, CSV, JSON), pasted meeting/chat notes, public GitHub repository activity, source-linked claims, human review, approval, and print-to-PDF export.
+**Relay AI** is a zero-backend, browser-based prototype built to make project handoffs painless. Instead of digging through months of scattered docs, meeting transcripts, and GitHub issues, Relay pulls everything together into a clean, source-verified handover document that you can actually trust.
 
-## Run locally
+ ## Quickstart (Run Locally)
+Since Relay AI runs entirely in the browser, getting it up and running takes seconds:
 
-This is a static app. Open `index.html` in a modern browser, or serve the folder:
-
-```bash
+- Clone or download this repository.
+- Serve the directory using Python's built-in HTTP server:
+- Bash
 python -m http.server 8000
-```
+Open http://localhost:8000 in any modern web browser.
 
-Then visit http://localhost:8000.
+(Or simply double-click index.html to open it directly!)
 
-## Deploy so judges can open a link
+## Walkthrough
+To see Relay AI in action, follow this quick flow:
 
-**GitHub Pages:**
-1. Create a public GitHub repository, e.g. `relay-ai-mvp`.
-2. Upload `index.html` and `README.md` to the repository root.
-3. Open Settings → Pages.
-4. Under Build and deployment, choose Deploy from a branch → `main` → `/ (root)` → Save.
-5. Wait for deployment. The public app URL will be `https://YOUR-USERNAME.github.io/relay-ai-mvp/`.
-6. Open the URL in an incognito window and test the demo before submitting.
+- Load Sample Data: Open the app URL and click Load demo project.
 
-You can also deploy the folder using Netlify Drop or Vercel static deployment.
+- Inspect the Draft: Navigate to the Handover draft tab to see structured sections created from raw project noise.
 
-## Judge demo flow
+- Trace the Evidence: Head to Evidence & review. Every generated claim links directly to its source ID, document name, and raw excerpt.
 
-1. Open the public URL.
-2. Click **Load demo project**.
-3. Open **Handover draft** and inspect the generated sections.
-4. Open **Evidence & review**. Every extracted claim displays a source ID, source name and excerpt.
-5. Verify each claim using its checkbox (or edit/flag claims). Click **Approve handover** only after all claims are reviewed.
-6. Return to the handover and click **Print / Save as PDF**. Choose Save as PDF in the browser print dialog.
+- Audit & Approve: Verify claims using the checkboxes (or edit/flag anything that looks off). Once ready, click Approve handover.
 
-## Current MVP scope and limitations
+- Export: Hop back to the handover view, click Print / Save as PDF, and save your final handover document.
 
-- The demo includes a deterministic extraction/classification pipeline so the core workflow works without an API key. It is not a general-purpose LLM and does not invent missing details.
-- PDF and DOCX text extraction use public CDN libraries; an internet connection is needed for those formats.
-- GitHub integration reads public repository README, recent commits and open issues via the GitHub REST API. Private repositories and authenticated OAuth are not included in this MVP.
-- All processing happens in the browser. The app does not upload sources to a server or persist data after the page is closed/refreshed.
-- “Approve all reviewed” is a convenience for demo data. For real use, inspect every source excerpt and edit or flag incorrect claims before approval.
-- The MVP intentionally avoids collecting credentials, secrets or payment data.
+## Features & Current Capabilities
+- Multi-Format Ingestion: Drag and drop PDFs, Word files (.docx), plain text, Markdown, CSV, and JSON.
 
-## Privacy note
+- GitHub Context: Paste a public repo URL to pull in READMEs, recent commits, and open issues via the GitHub REST API.
 
-Do not upload passwords, API keys, access tokens, private customer data or other sensitive information. The public GitHub API is used only for public repositories. For a production version, add server-side access controls, OAuth scopes, audit logs, retention controls and encrypted storage.
+- Traceable Claims: Every insight points directly back to its original source sentence so nothing is hallucinated.
+
+- Client-Side Privacy: Zero server uploads. Everything processes right inside your browser session.
+
+## Limitations
+Deterministic Extraction: This MVP uses a deterministic extraction pipeline rather than live LLM API calls.
+
+Network Needs: Text extraction for .pdf and .docx files relies on lightweight CDN libraries, so an active internet connection is needed for those formats.
+
+Public GitHub Only: The GitHub integration uses unauthenticated public API calls (private repos and OAuth are out of scope for this prototype).
+
+In-Memory Storage: Data resets when the browser tab is refreshed or closed.
+
+## Privacy & Safety Notice
+Relay AI runs 100% locally in your browser — no data or uploaded files leave your device.
+
+## Reminder: Do not paste passwords, secret keys, or sensitive customer records into public hackathon demos. Production iterations will introduce server-side access controls, OAuth scopes, audit logs, and encrypted persistence.
