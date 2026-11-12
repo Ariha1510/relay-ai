@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#faf8f5">
+<title>Relay AI — Thoughtful Project Handovers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/mammoth@1.8.0/mammoth.browser.min.js"></script>
+<style>
+  :root {
+    --bg: #faf8f5;
+    --surface: #ffffff;
+    --surface-soft: #f3efe9;
+    --border: #e5dfd5;
+    --text: #1f2421;
+    --muted: #646b66;
+    --primary: #1b4332;
+    --primary-hover: #2d6a4f;
+    --accent: #d97706;
+    --accent-soft: #fef3c7;
+    --green-soft: #dcfce7;
+    --green-text: #166534;
+    --red-soft: #fee2e2;
+    --red-text: #991b1b;
+    --shadow: 0 4px 20px -2px rgba(31, 36, 33, 0.05);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, .serif {
+    font-family: 'Fraunces', Georgia, serif;
+    letter-spacing: -0.02em;
+  }
+
+  button, input, textarea, select { font: inherit; }
+
+  button {
+    cursor: pointer;
+    border: 0;
+    border-radius: 12px;
+    padding: 10px 16px;
+    background: var(--primary);
+    color: #ffffff;
+    font-weight: 600;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  button:hover:not(:disabled) {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+  }
+  button.secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.secondary:hover:not(:disabled) {
+    background: var(--surface-soft);
+  }
+  button.ghost {
+    background: transparent;
+    color: var(--muted);
+  }
+  button.ghost:hover:not(:disabled) {
+    background: var(--surface-soft);
+    color: var(--text);
+  }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  input, textarea, select {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input:focus, textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.1);
+  }
+  textarea { min-height: 105px; resize: vertical; }
+
+  .shell { max-width: 1360px; margin: auto; padding: 24px 28px; }
+
+  /* Header */
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: var(--primary);
+    color: #faf8f5;
+    display: grid;
+    place-items: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 22px;
+    box-shadow: var(--shadow);
+  }
+  .brand h1 { font-size: 22px; margin: 0; color: var(--primary); }
+  .brand small { color: var(--muted); font-size: 13px; }
+  .top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Hero */
+  .hero {
+    padding: 30px 32px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ffffff 0%, #f4f1ea 100%);
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: var(--green-soft);
+    color: var(--green-text);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 12px;
+  }
+  .hero h2 {
+    font-size: clamp(26px, 3.5vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 10px;
+    color: var(--text);
+  }
+  .hero h2 span { color: var(--primary); font-style: italic; }
+  .hero p { max-width: 680px; color: var(--muted); margin: 0; font-size: 15.5px; }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .step b { display: block; color: var(--primary); font-size: 13px; margin-bottom: 2px; }
+
+  /* Workspace Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    min-width: 0;
+  }
+  .panel h3 { margin: 0 0 16px; font-size: 19px; color: var(--text); }
+
+  .section { margin-bottom: 18px; }
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .hint { font-size: 12.5px; color: var(--muted); margin: 6px 0; line-height: 1.45; }
+
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row > * { flex: 1; }
+
+  /* Upload box */
+  .upload {
+    border: 1.5px dashed #cbd5e1;
+    background: var(--bg);
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .upload:hover {
+    border-color: var(--primary);
+    background: #f2f7f4;
+  }
+  .upload input { display: none; }
+
+  .filelist { display: grid; gap: 8px; margin-top: 10px; }
+  .fileitem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface-soft);
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .fileitem span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 99px;
+    background: #e2ece6;
+    color: var(--primary);
+    white-space: nowrap;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    overflow: auto;
+  }
+  .tab {
+    background: transparent;
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .tab:hover { background: var(--surface-soft); color: var(--text); transform: none; }
+  .tab.active {
+    color: var(--primary);
+    background: #e8f0ec;
+  }
+  .tabview { display: none; }
+  .tabview.active { display: block; }
+
+  /* Stats & Cards */
+  .statgrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+  }
+  .stat strong {
+    display: block;
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    color: var(--primary);
+  }
+  .stat span { font-size: 12.5px; color: var(--muted); }
+
+  .empty {
+    padding: 48px 24px;
+    text-align: center;
+    border: 1.5px dashed var(--border);
+    background: var(--bg);
+    border-radius: 16px;
+    color: var(--muted);
+  }
+  .empty strong {
+    display: block;
+    font-family: 'Fraunces', serif;
+    color: var(--text);
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .card h4 { margin: 0 0 6px; font-size: 15px; color: var(--primary); }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+  /* Claims & Review */
+  .claim {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 16px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+  }
+  .claimhead { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .source {
+    font-size: 12.5px;
+    color: var(--primary);
+    background: #eef4f0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 10px;
+    overflow-wrap: anywhere;
+  }
+  .status {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: var(--surface-soft);
+    color: var(--muted);
+  }
+  .status.ok { background: var(--green-soft); color: var(--green-text); }
+  .status.flag { background: var(--accent-soft); color: #92400e; }
+
+  .claim textarea { min-height: 68px; margin-top: 10px; background: var(--surface); }
+  .check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-top: 10px;
+    cursor: pointer;
+  }
+  .check input { width: auto; accent-color: var(--primary); }
+  .claimnote { margin-top: 8px; font-size: 13px; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0; }
+  .notice {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #f0f5f2;
+    color: #2d4a3e;
+    font-size: 13px;
+    margin: 14px 0;
+    line-height: 1.5;
+  }
+  .warning { background: var(--accent-soft); color: #78350f; }
+  .small { font-size: 13px; color: var(--muted); }
+
+  /* Handover Report */
+  .report h2 { font-size: 28px; color: var(--primary); margin-bottom: 6px; }
+  .report h3 {
+    margin: 24px 0 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    font-size: 18px;
+  }
+  .report li { margin: 8px 0; line-height: 1.6; }
+
+  .footer {
+    margin: 28px 0 8px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .hidden { display: none !important; }
+
+  @media(max-width:900px) {
+    .layout { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: repeat(2, 1fr); }
+    .statgrid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media(max-width:560px) {
+    .shell { padding: 14px; }
+    .top { align-items: flex-start; flex-direction: column; }
+    .cards, .steps { grid-template-columns: 1fr; }
+    .row { flex-direction: column; align-items: stretch; }
+  }
+  @media print {
+    body { background: #fff; color: #111; }
+    .shell { max-width: none; padding: 0; }
+    .top, .hero, .layout > aside, .tabs, .toolbar, .footer, .no-print { display: none !important; }
+    .layout { display: block; }
+    .panel { background: #fff; border: 0; padding: 0; box-shadow: none; }
+    .report, .report * { color: #111 !important; }
+    .report h3 { border-color: #ccc; }
+    .source { background: none; padding: 0; color: #444 !important; }
+    .claim { break-inside: avoid; background: #fff; border-color: #ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <h1>Relay AI</h1>
+        <small>Pass the baton without losing the story</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="secondary" id="demoBtn">✨ Load sample project</button>
+      <button class="ghost" id="resetBtn">Start fresh</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="hero-badge">🌿 100% Browser-Based · Private by Design</span>
+    <h2>Never let hard-earned context <span>walk out the door.</span></h2>
+    <p>Gather scattered docs, GitHub commits, task lists, and meeting notes into one clear, source-backed handover guide—reviewed and signed off by real humans before sharing.</p>
+    <div class="steps">
+      <div class="step"><b>1. Gather</b>Drop files or link GitHub</div>
+      <div class="step"><b>2. Distill</b>Surface key decisions & tasks</div>
+      <div class="step"><b>3. Draft</b>Build a structured guide</div>
+      <div class="step"><b>4. Verify</b>Human sanity-check</div>
+      <div class="step"><b>5. Share</b>Export a clean PDF</div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="panel">
+      <h3>Set up your handover</h3>
+      <div class="section">
+        <label class="label">What’s the project called?</label>
+        <input id="projectName" value="Untitled project" placeholder="e.g. Campus Marketplace" />
+      </div>
+      <div class="section">
+        <label class="label">Who is handing over?</label>
+        <input id="outgoing" placeholder="e.g. Aarav (Lead Dev)" />
+      </div>
+      <div class="section">
+        <label class="label">Who is taking the reins?</label>
+        <input id="incoming" placeholder="e.g. Incoming engineering team" />
+      </div>
+
+      <div class="section">
+        <label class="label">Drop in project documents</label>
+        <div class="upload">
+          <label for="filesInput" style="cursor:pointer; display:block;">
+            <strong style="color:var(--primary)">＋ Choose files to upload</strong>
+            <div class="hint">Supports PDF, DOCX, TXT, MD, CSV, or JSON</div>
+          </label>
+          <input id="filesInput" type="file" multiple accept=".pdf,.docx,.txt,.md,.csv,.json" />
+        </div>
+        <div class="filelist" id="fileList">
+          <div class="small">Nothing uploaded yet—add files or try the sample project!</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <label class="label">Connect a public GitHub repo</label>
+        <input id="githubUrl" placeholder="https://github.com/owner/repo" />
+        <p class="hint">Pulls in the README, recent commits, and open issues automatically.</p>
+        <button class="secondary" id="githubBtn" style="width:100%">Fetch repo activity</button>
+        <div id="githubStatus" class="hint"></div>
+      </div>
+
+      <div class="section">
+        <label class="label">Quick notes or chat snippets</label>
+        <textarea id="notesInput" placeholder="Paste Slack threads, meeting takeaways, or context you don't want forgotten..."></textarea>
+        <button class="secondary" id="addNotesBtn" style="width:100%;margin-top:8px">Add notes to workspace</button>
+      </div>
+
+      <div class="notice">
+        🔒 <strong>Stays on your device:</strong> Everything runs locally in your browser. Please avoid pasting passwords, API keys, or private customer info.
+      </div>
+    </aside>
+
+    <main class="panel">
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Workspace overview</button>
+        <button class="tab" data-tab="handover">Handover guide</button>
+        <button class="tab" data-tab="evidence">Fact-check & approve</button>
+      </div>
+
+      <section id="overview" class="tabview active">
+        <div class="statgrid">
+          <div class="stat"><strong id="sourceCount">0</strong><span>Sources added</span></div>
+          <div class="stat"><strong id="claimCount">0</strong><span>Key points found</span></div>
+          <div class="stat"><strong id="taskCount">0</strong><span>Open next steps</span></div>
+          <div class="stat"><strong id="approvedCount">0</strong><span>Verified by you</span></div>
+        </div>
+
+        <div id="overviewEmpty" class="empty">
+          <strong>Ready when you are.</strong>
+          Upload a few project docs, paste meeting notes, or connect a GitHub repo on the left. Want to take it for a quick spin first?
+          <div style="margin-top:16px">
+            <button id="emptyDemo">✨ Try with sample project data</button>
+          </div>
+        </div>
+
+        <div id="overviewContent" class="hidden">
+          <div class="row">
+            <div>
+              <h3 style="margin:0">Your sources are ready</h3>
+              <p class="small">We’ll organize these into a clean, readable handover draft.</p>
+            </div>
+            <button id="generateBtn">Create handover draft →</button>
+          </div>
+          <div class="cards" id="overviewCards"></div>
+        </div>
+      </section>
+
+      <section id="handover" class="tabview">
+        <div class="row">
+          <div>
+            <h3 style="margin:0">Draft handover guide</h3>
+            <p class="small">Click any text below to tweak wording directly before signing off.</p>
+          </div>
+          <button class="secondary" id="generateBtn2">Refresh draft</button>
+        </div>
+
+        <div id="reportEmpty" class="empty">
+          <strong>No draft created yet.</strong>
+          Add your project sources first, then click “Create handover draft”.
+        </div>
+
+        <div id="report" class="report hidden"></div>
+
+        <div class="toolbar no-print">
+          <button id="toReviewBtn">Fact-check & sign off →</button>
+          <button class="secondary" id="exportBtn">Save or print PDF</button>
+        </div>
+      </section>
+
+      <section id="evidence" class="tabview">
+        <div class="row">
+          <div>
+            <h3 style="margin:0">Human sanity-check</h3>
+            <p class="small">Every takeaway links back to the exact sentence it came from.</p>
+          </div>
+          <div class="tag" id="reviewSummary">Waiting for draft</div>
+        </div>
+
+        <div class="notice warning">
+          <strong>Why this step matters:</strong> Automated extraction can miss nuance. Give each point a quick check against its original excerpt before approving the final guide.
+        </div>
+
+        <div id="claimsList">
+          <div class="empty">
+            <strong>Nothing to review yet.</strong>
+            Generate your handover draft first to inspect the extracted points here.
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="approveAllBtn" class="secondary">Mark all as verified</button>
+          <button id="finalApproveBtn">✓ Sign off & approve handover</button>
+        </div>
+        <div id="approvalStatus" class="small"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="footer">Built with care · Relay AI keeps humans in the loop for every project transition</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);let sources=[],claims=[],reportData=null,approved=false;
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function addSource(name,type,text,meta={}){if(!text||!text.trim())return;sources.push({id:'S'+(sources.length+1),name,type,text:text.trim(),meta});renderSources();updateStats()}
+function renderSources(){$('sourceCount').textContent=sources.length;$('fileList').innerHTML=sources.length?sources.map(s=>`<div class="fileitem"><span title="${esc(s.name)}">${esc(s.name)}</span><span class="tag">${esc(s.type)}</span></div>`).join(''):'<div class="small">Nothing uploaded yet—add files or try the sample project!</div>';toggleOverview()}
+function updateStats(){$('claimCount').textContent=claims.length;$('taskCount').textContent=claims.filter(c=>c.category==='Tasks & next steps').length;$('approvedCount').textContent=claims.filter(c=>c.review==='approved').length;$('reviewSummary').textContent=claims.length?`${claims.filter(c=>c.review==='approved').length} of ${claims.length} verified`:'Waiting for draft'}
+function toggleOverview(){const has=sources.length>0;$('overviewEmpty').classList.toggle('hidden',has);$('overviewContent').classList.toggle('hidden',!has);if(has){let total=sources.reduce((n,s)=>n+s.text.length,0);$('overviewCards').innerHTML=`<div class="card"><h4>What we’re working with</h4><p>${sources.length} source(s) loaded (${total.toLocaleString()} characters) across ${[...new Set(sources.map(s=>s.type))].join(', ')}.</p></div><div class="card"><h4>How it works</h4><p>We’ll group key facts into tasks, decisions, and risks—keeping every single point linked to its original source.</p></div>`}}
+
+$('filesInput').addEventListener('change',async e=>{for(const f of [...e.target.files]){try{let text='';let ext=f.name.split('.').pop().toLowerCase();if(ext==='pdf'){if(!window.pdfjsLib)throw Error('PDF reader did not load. Try TXT or DOCX.');pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';let pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;for(let p=1;p<=pdf.numPages;p++){let page=await pdf.getPage(p),c=await page.getTextContent();text+=c.items.map(x=>x.str).join(' ')+'\n'}}else if(ext==='docx'){if(!window.mammoth)throw Error('DOCX reader did not load. Try TXT or PDF.');text=(await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value}else{text=await f.text()}addSource(f.name,ext.toUpperCase(),text,{size:f.size})}catch(err){alert(`Could not read ${f.name}: ${err.message}`)}}e.target.value=''});
+$('addNotesBtn').onclick=()=>{let t=$('notesInput').value.trim();if(!t)return alert('Paste some meeting notes or chat snippets first!');addSource('Meeting notes & chat','NOTES',t);$('notesInput').value=''};
+$('githubBtn').onclick=async()=>{let url=$('githubUrl').value.trim(),m=url.match(/github\.com\/([^/]+)\/([^/#?]+)/i);if(!m)return alert('Please enter a valid public GitHub URL, like https://github.com/facebook/react');let [_,owner,repo]=m;repo=repo.replace(/\.git$/,'');$('githubStatus').textContent='Fetching repo details…';$('githubBtn').disabled=true;try{let headers={'Accept':'application/vnd.github+json'};async function get(path){let r=await fetch(`https://api.github.com/repos/${owner}/${repo}${path}`,{headers});if(!r.ok)throw Error(`${r.status} ${r.statusText}`);return r.json()}let [info,commits,issues,readme]=await Promise.all([get(''),get('/commits?per_page=15'),get('/issues?state=open&per_page=30'),get('/readme').catch(()=>null)]);let txt=`Repository: ${info.full_name}\nDescription: ${info.description||'Not provided'}\nDefault branch: ${info.default_branch}\nLast updated: ${info.updated_at}\nStars: ${info.stargazers_count}\n\nRECENT COMMITS\n`+commits.map(c=>`- ${c.commit.message.split('\n')[0]} | ${c.commit.author?.date||''} | ${c.html_url}`).join('\n')+`\n\nOPEN ISSUES\n`+issues.filter(i=>!i.pull_request).map(i=>`- #${i.number} ${i.title} | ${i.state} | ${i.html_url}`).join('\n');if(readme?.content){let decoded=atob(readme.content.replace(/\n/g,''));txt+='\n\nREADME\n'+decoded.slice(0,14000)}addSource(`${owner}/${repo} (GitHub)`,'GITHUB',txt,{url,owner,repo});$('githubStatus').innerHTML=`<span style="color:var(--green-text);font-weight:600">✓ Connected to ${esc(info.full_name)}</span>`}catch(err){$('githubStatus').textContent='Couldn’t reach that repo: '+err.message+' (Make sure it’s public!)'}finally{$('githubBtn').disabled=false}};
+
+function splitSentences(text){return text.replace(/\r/g,'').split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim().replace(/^[-*•\d.)\s]+/, '')).filter(x=>x.length>22)}
+const rules=[['Tasks & next steps',/\b(todo|to-do|pending|next step|action item|follow[- ]?up|will implement|needs to|must fix|open issue|blocked|remaining|deadline|due)\b/i],['Decisions & rationale',/\b(decided|decision|agreed|approved|selected|chosen|because|trade[- ]?off|will use|going with)\b/i],['Risks & blockers',/\b(risk|blocker|blocked|issue|problem|failure|concern|dependency|delay|security|outage)\b/i],['Completed work',/\b(completed|implemented|delivered|merged|released|finished|fixed|deployed|built|added|created)\b/i],['Technical context',/\b(api|database|backend|frontend|architecture|authentication|deployment|server|framework|schema|integration|repository|branch)\b/i]];
+
+function generate(){if(!sources.length)return alert('Add at least one project source first!');claims=[];let seen=new Set();for(const s of sources){let lines=splitSentences(s.text);for(let line of lines){let category=rules.find(r=>r[1].test(line))?.[0]||'Project context';let norm=line.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,130);if(seen.has(norm))continue;seen.add(norm);claims.push({id:'C'+(claims.length+1),category,text:line.slice(0,420),sourceId:s.id,sourceName:s.name,excerpt:line.slice(0,300),review:'pending',note:''})}}claims=claims.slice(0,80);if(!claims.length){claims=[{id:'C1',category:'Project context',text:'Sources were uploaded, but no long text passages could be extracted. Try pasting key notes manually.',sourceId:sources[0].id,sourceName:sources[0].name,excerpt:'No extractable passage found.',review:'flagged',note:'Add a text summary to improve extraction.'}]}reportData=buildReport();approved=false;renderClaims();renderReport();updateStats();switchTab('handover')}
+
+function buildReport(){let groups={};for(const c of claims)(groups[c.category]??=[]).push(c);return {name:$('projectName').value.trim()||'Untitled project',outgoing:$('outgoing').value.trim()||'Not specified',incoming:$('incoming').value.trim()||'Not specified',generated:new Date().toLocaleDateString(undefined,{dateStyle:'medium'}),groups}}
+
+function renderReport(){if(!reportData)return;$('reportEmpty').classList.add('hidden');$('report').classList.remove('hidden');let order=['Project context','Completed work','Decisions & rationale','Tasks & next steps','Risks & blockers','Technical context'];let html=`<h2 contenteditable="true">${esc(reportData.name)} — Handover Guide</h2><p><strong>Handed over by:</strong> ${esc(reportData.outgoing)} &nbsp;·&nbsp; <strong>Received by:</strong> ${esc(reportData.incoming)}</p><p class="small">Prepared on ${esc(reportData.generated)} · ${claims.length} source-backed points</p><div class="notice">Every point below links back to its original document so your incoming teammate knows where the context came from.</div>`;for(const cat of order){let arr=reportData.groups[cat]||[];if(!arr.length)continue;html+=`<h3>${esc(cat)}</h3><ul>${arr.map(c=>`<li contenteditable="true">${esc(c.text)} <span style="color:var(--primary);font-size:12px;font-weight:600">[${esc(c.sourceId)} · ${esc(c.sourceName)}]</span></li>`).join('')}</ul>`}html+=`<h3>Sources referenced</h3><ul>${sources.map(s=>`<li><strong>${esc(s.id)} — ${esc(s.name)}</strong> (${esc(s.type)})</li>`).join('')}</ul><h3>Sign-off</h3><p>Incoming owner: ________________________ &nbsp;&nbsp; Date: ____________</p><p>Reviewer / lead: ________________________ &nbsp;&nbsp; Date: ____________</p><p><strong>Status:</strong> <span id="reportApproval">${approved?'✓ Approved & ready to share':'Awaiting human sign-off'}</span></p>`;$('report').innerHTML=html}
+
+function renderClaims(){$('claimsList').innerHTML=claims.length?claims.map(c=>`<article class="claim" data-id="${c.id}"><div class="claimhead"><strong>${esc(c.category)}</strong><span class="status ${c.review==='approved'?'ok':c.review==='flagged'?'flag':''}">${c.review==='approved'?'✓ Verified':c.review==='flagged'?'Needs edit':'Needs review'}</span></div><textarea class="claimtext" aria-label="Edit point">${esc(c.text)}</textarea><div class="source"><strong>From ${esc(c.sourceName)} (${esc(c.sourceId)}):</strong> “${esc(c.excerpt)}”</div><label class="check"><input type="checkbox" class="claimcheck" ${c.review==='approved'?'checked':''}> Looks accurate based on the source</label><input class="claimnote" placeholder="Add a quick note or correction if needed..." value="${esc(c.note)}" /></article>`).join(''):'<div class="empty">No points extracted yet.</div>';document.querySelectorAll('.claim').forEach(el=>{let id=el.dataset.id,c=claims.find(x=>x.id===id);el.querySelector('.claimtext').oninput=e=>{c.text=e.target.value;approved=false;updateStats()};el.querySelector('.claimcheck').onchange=e=>{c.review=e.target.checked?'approved':'pending';approved=false;el.querySelector('.status').textContent=e.target.checked?'✓ Verified':'Needs review';el.querySelector('.status').className='status '+(e.target.checked?'ok':'');updateStats()};el.querySelector('.claimnote').oninput=e=>{c.note=e.target.value;if(e.target.value.trim()){c.review='flagged';el.querySelector('.status').textContent='Needs edit';el.querySelector('.status').className='status flag';el.querySelector('.claimcheck').checked=false;updateStats()}}});updateStats()}
+
+function switchTab(id){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===id));document.querySelectorAll('.tabview').forEach(t=>t.classList.toggle('active',t.id===id))}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+
+$('generateBtn').onclick=generate;$('generateBtn2').onclick=generate;$('toReviewBtn').onclick=()=>switchTab('evidence');
+$('approveAllBtn').onclick=()=>{claims.forEach(c=>{if(c.review!=='flagged')c.review='approved'});renderClaims()};
+$('finalApproveBtn').onclick=()=>{let pending=claims.filter(c=>c.review!=='approved');if(pending.length)return alert(`There are still ${pending.length} unverified point(s). Please check or edit them before signing off.`);approved=true;$('approvalStatus').innerHTML='<span style="color:var(--green-text);font-weight:600">✓ Signed off! Your handover guide is approved and ready to export as a PDF.</span>';if($('reportApproval'))$('reportApproval').textContent='✓ Approved & ready to share';updateStats();};
+$('exportBtn').onclick=()=>{if(!reportData)return alert('Create a handover draft first!');if(!approved)return alert('Please sign off on your points in the "Fact-check & approve" tab before exporting.');window.print()};
+
+function demo(){sources=[];claims=[];approved=false;$('projectName').value='CampusConnect — Student Marketplace';$('outgoing').value='Aarav (Full-stack Developer)';$('incoming').value='Incoming Engineering Team';addSource('Sprint review notes.md','MD',`CampusConnect is a student marketplace for buying and selling used books and hostel essentials. The team decided to use React for the frontend and Node.js with Express for the backend because the team already has JavaScript experience.\nThe authentication module was completed and merged into the main branch on 8 November.\nThe payment integration is still pending; the team agreed to use a sandbox provider before production credentials are requested.\nA blocker remains in image uploads: files larger than 5 MB fail intermittently on the staging server.\nNext step: Priya will fix image upload validation and add retry handling before the next sprint review.\nThe PostgreSQL database stores users, listings, categories and order records.\nThe team decided not to store payment card details in the application.\nThe staging deployment is live, but production deployment has not been completed.`);addSource('tasks_export.csv','CSV',`task,status,owner,due_date\nAuthentication module,Done,Aarav,2026-11-08\nPayment sandbox integration,Pending,Priya,2026-11-15\nFix image upload failure,Blocked,Priya,2026-11-14\nProduction deployment,Pending,DevOps,2026-11-20`);addSource('demo/campusconnect (GitHub)','GITHUB',`Repository: demo/campusconnect\nRecent commit: feat: add listing image upload endpoint\nRecent commit: fix: validate user session on listing creation\nRecent commit: docs: update local development setup\nOpen issue #42: Image upload fails for files over 5 MB\nOpen issue #39: Add payment provider sandbox integration\nDefault branch: main`);addSource('Team sync chat export.txt','TXT',`Team sync, 10 November: Priya confirmed the upload issue happens mostly on staging and suspects a request size limit. DevOps needs to confirm the reverse proxy configuration. Aarav will document the environment variables but must not include secret values. The team agreed that the incoming owner should first review the authentication flow, then finish the payment sandbox integration.`);renderSources();generate()}
+
+$('demoBtn').onclick=demo;$('emptyDemo').onclick=demo;
+$('resetBtn').onclick=()=>{if(!confirm('Clear everything and start a fresh handover?'))return;sources=[];claims=[];reportData=null;approved=false;$('report').innerHTML='';$('report').classList.add('hidden');$('reportEmpty').classList.remove('hidden');$('approvalStatus').textContent='';renderSources();renderClaims();updateStats();switchTab('overview')};
+
+renderSources();updateStats();
+</script>
+</body>
+</html>
